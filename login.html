@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome - Smart Resume System</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f0f2f5; }
+        .login-card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 400px; text-align: center; }
+        h2 { margin-bottom: 20px; color: #333; }
+        input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; font-size: 1rem; }
+        button { width: 100%; padding: 15px; background: linear-gradient(to right, #ff6b6b, #845ef7); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1.1rem; margin-top: 10px; transition: 0.3s; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+        
+        .toggle-link { margin-top: 20px; font-size: 0.9rem; color: #666; }
+        .toggle-link span { color: #845ef7; cursor: pointer; font-weight: bold; text-decoration: underline; }
+        
+        /* Hidden state for Sign Up specific fields if needed */
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h2 id="form-title">Login</h2>
+        
+        <input type="text" id="username" placeholder="Enter Username" required>
+        <input type="password" id="password" placeholder="Password" required>
+        
+        <button id="main-btn" onclick="handleAuth()">Login to Dashboard</button>
+        
+        <div class="toggle-link" id="toggle-wrapper">
+            Don't have an account? <span onclick="toggleMode()">Sign Up</span>
+        </div>
+    </div>
+
+    <script>
+        let isLoginMode = true;
+
+        function toggleMode() {
+            isLoginMode = !isLoginMode;
+            const title = document.getElementById('form-title');
+            const btn = document.getElementById('main-btn');
+            const toggleWrapper = document.getElementById('toggle-wrapper');
+
+            if (isLoginMode) {
+                title.innerText = "Login";
+                btn.innerText = "Login to Dashboard";
+                toggleWrapper.innerHTML = `Don't have an account? <span onclick="toggleMode()">Sign Up</span>`;
+            } else {
+                title.innerText = "Create Account";
+                btn.innerText = "Register Now";
+                toggleWrapper.innerHTML = `Already have an account? <span onclick="toggleMode()">Login</span>`;
+            }
+        }
+
+        function handleAuth() {
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value.trim();
+
+            if (!user || !pass) {
+                alert("Please fill in all fields!");
+                return;
+            }
+
+            if (isLoginMode) {
+                // LOGIN LOGIC
+                const savedPass = localStorage.getItem(`user_${user}`);
+                
+                if (savedPass && savedPass === pass) {
+                    localStorage.setItem('loggedInUser', user);
+                    window.location.href = 'index1.html';
+                } else {
+                    alert("Invalid Username or Password!");
+                }
+            } else {
+                // SIGN UP LOGIC
+                if (localStorage.getItem(`user_${user}`)) {
+                    alert("User already exists! Please login.");
+                } else {
+                    localStorage.setItem(`user_${user}`, pass);
+                    alert("Account created successfully! Now logging you in...");
+                    localStorage.setItem('loggedInUser', user);
+                    window.location.href = 'index1.html';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

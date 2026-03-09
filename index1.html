@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Resume Dashboard</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; font-size: 20px; margin: 0; background: #f0f2f5; color: #333; }
+        .main-header { background: linear-gradient(to right, #ff6b6b, #845ef7, #5c7cfa); color: white; padding: 30px 60px; display: flex; justify-content: space-between; align-items: center; }
+        .dashboard-wrapper { display: flex; flex-direction: column; gap: 40px; padding: 40px; max-width: 1200px; margin: 0 auto; }
+        .white-card { background: white; padding: 50px; border-radius: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); width: 100%; box-sizing: border-box; }
+        h2 { font-size: 2.2rem; color: #222; border-bottom: 3px solid #f0f0f0; padding-bottom: 10px; margin-bottom: 25px; }
+        label { font-size: 1.2rem; font-weight: bold; display: block; margin: 20px 0 10px; }
+        select { padding: 18px; font-size: 1.1rem; border-radius: 10px; border: 2px solid #ddd; width: 100%; background: #fafafa; }
+        .options-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; background: #f8f9fa; padding: 25px; border-radius: 12px; border: 1px solid #ddd; }
+        .upload-box { border: 3px dashed #845ef7; padding: 50px; text-align: center; border-radius: 20px; margin: 30px 0; background: #fdfcff; cursor: pointer; transition: 0.3s; }
+        .upload-box:hover { background: #f3f0ff; border-color: #5c7cfa; }
+        .list-item { padding: 15px; border-radius: 8px; margin-bottom: 10px; list-style: none; font-size: 1.2rem; }
+        .suggestion-item { background: #fff5f6; border-left: 6px solid #ff6b6b; color: #d91636; }
+        .prep-item { background: #f3f0ff; border-left: 6px solid #845ef7; color: #5f3dc4; font-weight: bold; }
+        .btn-run { background: linear-gradient(to right, #ff6b6b, #845ef7); color: white; width: 100%; padding: 25px; font-size: 1.5rem; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <h1 style="margin:0;">📄 SMART RESUME ANALYSIS SYSTEM</h1>
+        <button onclick="logout()" style="background:rgba(255,255,255,0.2); color:white; border:2px solid white; padding:10px 25px; border-radius:8px; cursor:pointer; font-weight:bold;">Logout</button>
+    </header>
+
+    <div class="dashboard-wrapper">
+        <div class="white-card">
+            <h2>Candidate Profile & Skills 🔍</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                <div>
+                    <label>Work Experience</label>
+                    <select id="experience">
+                        <option value="Fresher">Fresher</option>
+                        <option value="Junior">1-2 Years</option>
+                        <option value="Senior">3-5+ Years</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Education</label>
+                    <select id="degree"><option>B.Tech / B.E</option><option>MCA</option><option>M.Tech</option></select>
+                </div>
+            </div>
+
+            <label>Technical Skills</label>
+            <div class="options-grid">
+                <label><input type="checkbox" class="skill-check"> C</label>
+                <label><input type="checkbox" class="skill-check"> Java</label>
+                <label><input type="checkbox" class="skill-check"> Python</label>
+                <label><input type="checkbox" class="skill-check"> HTML</label>
+                <label><input type="checkbox" class="skill-check"> CSS</label>
+                <label><input type="checkbox" class="skill-check"> JavaScript</label>
+            </div>
+
+            <label>Certifications</label>
+            <div class="options-grid" style="background: #fffafa;">
+                <label><input type="checkbox" class="cert-check"> HTML Certification</label>
+                <label><input type="checkbox" class="cert-check"> CSS Certification</label>
+                <label><input type="checkbox" class="cert-check"> JS Certification</label>
+                <label><input type="checkbox" class="cert-check"> MOOCs Certification</label>
+            </div>
+
+            <div class="upload-box" onclick="document.getElementById('hidden-file-input').click()">
+                <p id="upload-text" style="color: #845ef7; font-size: 1.4rem; font-weight: bold;">📁 Click to Upload Resume</p>
+                <p id="file-name-display" style="font-size: 1rem; color: #555;"></p>
+                <input type="file" id="hidden-file-input" style="display: none;" onchange="showFileName()">
+            </div>
+
+            <button class="btn-run" onclick="runAnalysis()">RUN SYSTEM ANALYSIS</button>
+        </div>
+
+        <div class="white-card" id="results-area">
+            <h2>ATS Analysis Score 📊</h2>
+            <div style="display: flex; align-items: center; justify-content: space-around;">
+                <div id="circle" style="width: 200px; height: 200px; border-radius: 50%; border: 12px solid #eee; display: flex; align-items: center; justify-content: center; border-top-color: #ff6b6b;">
+                    <span id="score-val" style="font-size: 3.5rem; font-weight: bold; color: #ff6b6b;">0%</span>
+                </div>
+                <div style="font-size: 1.2rem;">
+                    <p>Experience: <span id="res-exp" style="font-weight:bold; color:#845ef7;">--</span></p>
+                    <p>Skills Found: <span id="res-skills" style="font-weight:bold; color:#2ecc71;">0</span></p>
+                    <p>Formatting: <span style="color:#2ecc71; font-weight:bold;">Excellent</span></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="white-card">
+            <h2>Resume Improvement Suggestions 💡</h2>
+            <div id="suggestions-list"><p style="color:#888;">Complete analysis to see suggestions.</p></div>
+        </div>
+
+        <div class="white-card">
+            <h2>Interview Preparation 📅</h2>
+            <div id="prep-list"><p style="color:#888;">Topics will appear after analysis.</p></div>
+        </div>
+
+        <div class="white-card">
+            <h2>User Profile 👤</h2>
+            <p><strong>Username:</strong> <span id="display-name" style="color:#845ef7; font-weight:bold;">Guest</span></p>
+            <p><strong>Status:</strong> Active Analysis</p>
+        </div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            const user = localStorage.getItem('loggedInUser');
+            if (user) document.getElementById('display-name').innerText = user;
+        };
+
+        function showFileName() {
+            const fileInput = document.getElementById('hidden-file-input');
+            const display = document.getElementById('file-name-display');
+            const text = document.getElementById('upload-text');
+            if (fileInput.files.length > 0) {
+                display.innerText = "File: " + fileInput.files[0].name;
+                text.innerText = "✅ Resume Uploaded";
+            }
+        }
+
+        function runAnalysis() {
+            const fileInput = document.getElementById('hidden-file-input');
+            if (fileInput.files.length === 0) {
+                alert("Error: No resume detected. Please upload a file first!");
+                return;
+            }
+
+            // Backend Logic (Numbers stay here, hidden from UI)
+            let totalScore = 40; 
+            const exp = document.getElementById('experience').value;
+            if (exp === "Junior") totalScore += 10;
+            if (exp === "Senior") totalScore += 20;
+
+            const skills = document.querySelectorAll('.skill-check:checked').length;
+            totalScore += (skills * 5);
+
+            const certs = document.querySelectorAll('.cert-check:checked').length;
+            totalScore += (certs * 2.5);
+
+            if (totalScore > 100) totalScore = 100;
+
+            // Score Animation
+            let current = 0;
+            const interval = setInterval(() => {
+                if (current >= totalScore) {
+                    clearInterval(interval);
+                } else {
+                    current++;
+                    document.getElementById('score-val').innerText = current + "%";
+                }
+            }, 20);
+
+            // Update UI Details
+            document.getElementById('res-exp').innerText = exp;
+            document.getElementById('res-skills').innerText = skills;
+
+            document.getElementById('suggestions-list').innerHTML = `
+                <div class="list-item suggestion-item">✔ ${skills < 4 ? "Add more Technical Skills to reach 80%+" : "Skills section looks strong"}</div>
+                <div class="list-item suggestion-item">✔ Ensure Certifications are clearly listed</div>`;
+
+            document.getElementById('prep-list').innerHTML = `
+                <div class="list-item prep-item">• Data Structures</div>
+                <div class="list-item prep-item">• Operating Systems</div>
+                <div class="list-item prep-item">• DBMS</div>
+                <div class="list-item prep-item">• OOP Concepts</div>`;
+
+            document.getElementById('results-area').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function logout() {
+            localStorage.removeItem('loggedInUser');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>
